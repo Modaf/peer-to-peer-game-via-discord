@@ -46,7 +46,7 @@ class DAG() :
     self.liste = []
     for k in range(JOUEURS) :
       self.liste.append([])
-      originel = Noeud(k, k)
+      originel = Noeud(k, k, -1)
       self.liste[k].append(originel)
     #Liste de jusqu'à quel indice inclus dans la liste des noeuds de chaque ligne chacun a déjà vu
     self.dejavu = []
@@ -59,7 +59,7 @@ class DAG() :
       return '{"liste" : '+ repr(self.liste) + ', "dejavu" : '+ repr(self.dejavu)+'}'
 
   def ajout(self, expediteur, destinataire, action, temps) : #expediteur et destinataire sont les id
-    noeud = Noeud(destinataire, expediteur, action)
+    noeud = Noeud(destinataire, expediteur, action, temps)
     #Ajout dans la ligne du destinataire
     self.liste[destinataire].append(noeud)
     noeud.temps[destinataire] = temps

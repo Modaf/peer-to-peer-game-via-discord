@@ -7,6 +7,8 @@ TOKEN = 'NDU4Mjg2Mjk2MTAwNTAzNTUz.DglckA.Kmgp9Jxk5nhotxcDLu9ytZoTR-M'
 IDSALON = 458770508616564741
 WAIT = int(sys.argv[1])
 
+print("Logical clock")
+
 client = discord.Client()
 async def my_background_task():
     await client.wait_until_ready()
