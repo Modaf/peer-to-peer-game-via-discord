@@ -1,4 +1,4 @@
-#Working
+#Faire en sorte que l'horloge passe à l'étape suivante quand tous les joueurs ont confirmés ?
 
 import sys
 import discord
@@ -13,9 +13,12 @@ async def my_background_task():
     counter = 0
     channel = discord.Object(id=IDSALON)
     while not client.is_closed:
-        counter += 1
-        await client.send_message(channel, '{"id" : "clock", "counter" : '+str(counter) + '}')
+        if counter % 2 == 0 :
+            await client.send_message(channel, '{"id" : "clock", "action" : "gossip", "counter" : '+str(counter) + '}')
+        if counter % 2 == 1 :
+            await client.send_message(channel, '{"id" : "clock", "action" : "netflix&chill", "counter" : '+str(counter) + '}')
         print(counter)
+        counter += 1
         await asyncio.sleep(WAIT) # task runs every 60 seconds
 
 @client.event
