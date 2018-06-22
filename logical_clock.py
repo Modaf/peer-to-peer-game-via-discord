@@ -15,10 +15,12 @@ async def my_background_task():
     counter = 0
     channel = discord.Object(id=IDSALON)
     while not client.is_closed:
-        if counter % 2 == 0 :
+        if counter % 2 == 0 or True :
             await client.send_message(channel, '{"id" : "clock", "action" : "gossip", "counter" : '+str(counter) + '}')
         if counter % 2 == 1 :
             await client.send_message(channel, '{"id" : "clock", "action" : "netflix&chill", "counter" : '+str(counter) + '}')
+        if counter % 100 == 10 :
+            await client.send_message(channel, '{"id" : "clock", "action" : "graphe", "counter" : '+str(counter) + '}')
         print(counter)
         counter += 1
         await asyncio.sleep(WAIT) # task runs every 60 seconds

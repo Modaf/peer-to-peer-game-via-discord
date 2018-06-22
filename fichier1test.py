@@ -35,7 +35,7 @@ class Noeud() : #On partage [id, parent1, parent2, contenu]
       print("Parent1", self.parent1, "Parent2", self.parent2)
       return None
     #Temps médian de reception
-    return sorted(self.temps)[len(self.temps)//2]
+    return sorted(self.temps)[len(self.temps)//2-1] #Liste d'au moins deux éléments
   @property
   def tempsPropre(self) :
     return min([-1] + [i for i in self.temps if i != -1])
@@ -90,30 +90,30 @@ class DAG() :
         noeud = self.liste[k][i]
         if i <= listevalide[k] :
           #Le noeud est valide, on affiche le temps final
-          date = noeud.tempsFinal
+          date = noeud.tempsPropre #TODO : voir entre temps final et temps propre
           if not avecTempsMoyen :
             date = noeud.temps[k]
-            plt.plot(date-debut, k, "x", color="g")
+            plt.plot(date, k, "x", color="g")
           else :
-            plt.plot(date-debut, k, "x", color="b")
+            plt.plot(date, k, "x", color="b")
           derniers[k] = max(derniers[k], date)
           if premiers[k] == -1 :
             premiers[k] = date
           #On relie à ses deux parents
           if noeud.parent1 != noeud.parent2 :
-            plt.plot([derniers[noeud.parent1]-debut, derniers[noeud.parent1]-debut], [noeud.parent2, noeud.parent1], color="k", alpha=0.3)
+            plt.plot([derniers[noeud.parent1], derniers[noeud.parent1]], [noeud.parent2, noeud.parent1], color="k", alpha=0.3)
         else :
           #Le noeud est pas valide
           date = noeud.temps[k]
-          plt.plot(date-debut, k, "x", color="r") #On affiche le temps de reception pour le joueur de la ligne seulement
+          plt.plot(date, k, "x", color="r") #On affiche le temps de reception pour le joueur de la ligne seulement
           derniers[k] = max(derniers[k], date)
           if premiers[k] == -1 :
             premiers[k] = date
           if noeud.parent1 != noeud.parent2 :
-            plt.plot([derniers[noeud.parent1]-debut, derniers[noeud.parent1]-debut], [noeud.parent2, noeud.parent1], color="k", alpha=0.3)
+            plt.plot([derniers[noeud.parent1], derniers[noeud.parent1]], [noeud.parent2, noeud.parent1], color="k", alpha=0.3)
     #On trace les lignes de joueurs
     for k in range(JOUEURS) :
-      plt.plot([min(premiers)-debut, max(derniers)-debut], [k, k], color="k", alpha=0.3)
+      plt.plot([min(-1, min(premiers)), max(derniers)], [k, k], color="k", alpha=0.3) #TODO : virer ce -1 pour quand un joueur rentre dans le jeu en cours de route
     #Affichage
     plt.ylabel('Numéros des joueurs')
     plt.yticks(range(0, 3))
