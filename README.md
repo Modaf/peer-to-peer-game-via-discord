@@ -20,22 +20,30 @@ Les joueurs communiquent sur le channel main du discord en explicitant chacun qu
   * "action" : "gossip" pour que des joueurs partagent leur graphe, "graphe" pour que chacun affiche son graphe
   * "counter" : le temps du jeu (c'est elle qui le définit)
 * Début du jeu par le chef du lobby
-  * "id" : "debut"
+  * "id" : "premier_message_chef"
   * "reputation" : le hash d'une chaine aléatoire qu'il révèle après
 * Demander une preuve de travail au chef du jeu
   * "//join" sans json
 * Livraison de la preuve de la travail par le chef du lobby
   *"id" : "solve_pow"
   * "string" : une chaine de base pour la pow
-  * "difficulty" : la difficulté de la preuve de travail demandée
+  * "difficulte" : la difficulté de la preuve de travail demandée
   * "reputation_avant" : revelation de son dernier hash
   * "reputation" : nouveau hash
 * Une fois la preuve de travail effectuée ce que renvoit le joueur
   * "id" : "solve"
   * "cle" : la variable "string" d'avant
   * "nonce" : ce qu'il faut concaténer à la clé pour donner une difficulté inférieure à celle demandée
-* Réponse du chef du lobby à cette pruve de travail
+* Réponse du chef du lobby à cette preuve de travail
   * "id" : "ajout_joueur"
+  * "joueurs" : le nombre de joueurs de la partie
+  * "reputation_avant" : revelation de son dernier hash
+  * "reputation" : nouveau hash
+
+Liste des actions temporaires
+
+* Une fois tous les joueurs ont join (après le jeu sera non permissionné)
+  * "id" : "debut"
   * "joueurs" : le nombre de joueurs de la partie
   * "reputation_avant" : revelation de son dernier hash
   * "reputation" : nouveau hash
@@ -61,3 +69,25 @@ On autorise par exemple 1mb comme taille limite de la preuve
 Chaque joueur doit donc à tout moment pouvoir donner 1mb de trucs (wtf ?) qui prouve qu'il a le droit d'être la  
 Par exemple si il a fait une boucle, il demande à la chaine de vérifier que c'est vrai. Une fois ceci faitsa preuve est beaucoup plus petite  
 Faut encore ajuster 2/3 trucs pour la compression mais ça va être l'idée : chaque joueur doit faire sa preuve soi même facile à vérifier et non juste la méthode du "on publie tout et on laisse 5€ à celui qui va trouver que c'est faux". Cette méthode est trop insécurisée car les gros poissons peuvent tricher, et la c'est exactement ce qu'on veut empécher : que ceux qui controllent des graphes entiers ne puissent pas tricher  
+
+### Pour jouer pour l'instant
+
+Lancer le fichier lancement.bat (en changeant les chemins dans les fichiers)
+Voici ce que vous obtiendrez sur le discord le temps que les trois joueurs join la game
+{"id" : "premier_message_chef", "reputation" : 76449966395750171332477322324202632807916384236514228929563615619767380375956}  
+//join 0  
+{"id" : "solve_pow", "destinataire" : 0, "string" : 0.5177247612810096, "difficulte" : 1.157920892373162e+71, "reputation_avant" : 0.7020230957808152, "reputation" : 69195499870237180747605132588885319887455890974776857517503693890444304534601}  
+{"id" : "solve", "cle" : 0.5177247612810096, "nonce" : 0.9828995833905334}  
+{"id" : "ajout_joueur", "joueurs" : 1, "reputation_avant" : 0.5996331407551069, "reputation" : 33681387141081704299288957589547891274461100573909929367326687420009333465946}  
+//join 1  
+{"id" : "solve_pow", "destinataire" : 1, "string" : 0.6768467952370001, "difficulte" : 1.157920892373162e+71, "reputation_avant" : 0.7244744322105793, "reputation" : 47692310921614768028654741488158409193817412215304667186998392904385742986844}  
+//join 2  
+{"id" : "solve_pow", "destinataire" : 2, "string" : 0.9137902754220341, "difficulte" : 1.157920892373162e+71, "reputation_avant" : 0.8687652177788774, "reputation" : 58227797961942977306652627645267438888943631133574764914326591538403757607537}  
+{"id" : "solve", "cle" : 0.6768467952370001, "nonce" : 0.897766775204959}  
+{"id" : "ajout_joueur", "joueurs" : 2, "reputation_avant" : 0.5086782727461203, "reputation" : 33156898130812232920820731554807230375096034757117053035062696781215023471994}
+{"id" : "solve", "cle" : 0.9137902754220341, "nonce" : 0.4087546936027314}  
+{"id" : "ajout_joueur", "joueurs" : 3, "reputation_avant" : 0.06672038215806753, "reputation" : 87968738643910596420178306088643274081371525424574543789513577965206566502214}  
+{"id" : "debut", "joueurs" : 3, "reputation_avant" : 0.6403772903956596, "reputation" : 55382339653617636135507585127276377587132995454953418714400296759839360305659}  
+Début du jeu  
+{"id" : "clock", "action" : "gossip", "counter" : 0}  
+Et les partages de graphe, à partir d'ici la partie est lancée. Reste à la rendre non permissionnée, gérer les réputations parmis les joueurs et l'horloge pour que personne usurpe le rôle du chef, et d'en faire un jeu simple lent

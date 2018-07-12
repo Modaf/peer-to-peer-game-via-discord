@@ -1,1 +1,1 @@
-start py "C:/Users/apzoeiruty/Desktop/peer_to_peer_game/class_discord.py" 1 2
+start py "C:/Users/apzoeiruty/Desktop/peer_to_peer_game/class_discord.py" 1 3
