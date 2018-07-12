@@ -70,10 +70,10 @@ Chaque joueur doit donc à tout moment pouvoir donner 1mb de trucs (wtf ?) qui p
 Par exemple si il a fait une boucle, il demande à la chaine de vérifier que c'est vrai. Une fois ceci faitsa preuve est beaucoup plus petite  
 Faut encore ajuster 2/3 trucs pour la compression mais ça va être l'idée : chaque joueur doit faire sa preuve soi même facile à vérifier et non juste la méthode du "on publie tout et on laisse 5€ à celui qui va trouver que c'est faux". Cette méthode est trop insécurisée car les gros poissons peuvent tricher, et la c'est exactement ce qu'on veut empécher : que ceux qui controllent des graphes entiers ne puissent pas tricher  
 
-### Pour jouer pour l'instant
+## Pour jouer pour l'instant
 
-Lancer le fichier lancement.bat (en changeant les chemins dans les fichiers)
-Voici ce que vous obtiendrez sur le discord le temps que les trois joueurs join la game
+Lancer le fichier lancement.bat (en changeant les chemins dans les fichiers)  
+Voici ce que vous obtiendrez sur le discord le temps que les trois joueurs join la game  
 {"id" : "premier_message_chef", "reputation" : 76449966395750171332477322324202632807916384236514228929563615619767380375956}  
 //join 0  
 {"id" : "solve_pow", "destinataire" : 0, "string" : 0.5177247612810096, "difficulte" : 1.157920892373162e+71, "reputation_avant" : 0.7020230957808152, "reputation" : 69195499870237180747605132588885319887455890974776857517503693890444304534601}  
@@ -90,4 +90,5 @@ Voici ce que vous obtiendrez sur le discord le temps que les trois joueurs join 
 {"id" : "debut", "joueurs" : 3, "reputation_avant" : 0.6403772903956596, "reputation" : 55382339653617636135507585127276377587132995454953418714400296759839360305659}  
 Début du jeu  
 {"id" : "clock", "action" : "gossip", "counter" : 0}  
+
 Et les partages de graphe, à partir d'ici la partie est lancée. Reste à la rendre non permissionnée, gérer les réputations parmis les joueurs et l'horloge pour que personne usurpe le rôle du chef, et d'en faire un jeu simple lent
