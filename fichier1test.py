@@ -16,10 +16,9 @@ import random
 import json
 from copy import deepcopy
 #IDMOI = int(sys.argv[1])
-JOUEURS = 3 #IDMOI #On mets à jour le nombre de jour au fur et à mesure qu'on apperçoit des nouveaux joueurs
 
 class Noeud() : #On partage [id, parent1, parent2, contenu]
-  def __init__(self, parent1=-1, parent2=-1, action=[], dernier_temps = -1) : #remplacer le time.time par qqch, c'est pour debug la
+  def __init__(self, parent1=-1, parent2=-1, action=[], dernier_temps = -1, JOUEURS = 0) : #remplacer le time.time par qqch, c'est pour debug la
     self.parent1 = parent1 #Celui de la même ligne
     self.parent2 = parent2
     self.action = action
@@ -48,18 +47,20 @@ class Noeud() : #On partage [id, parent1, parent2, contenu]
       return -1
 
 class DAG() :
-  def __init__(self) :
+  def __init__(self, JOUEURS) :
+    #Nombre de joueurs
+    self.JOUEURS = JOUEURS
     #On ajoute un noeud originel pour chaque ligne
     self.liste = []
-    for k in range(JOUEURS) :
+    for k in range(self.JOUEURS) :
       self.liste.append([])
-      originel = Noeud(k, k, [], -1)
+      originel = Noeud(k, k, [], -1, self.JOUEURS)
       self.liste[k].append(originel)
     #Liste de jusqu'à quel indice inclus dans la liste des noeuds de chaque ligne chacun a déjà vu
     self.dejavu = []
-    for k in range(JOUEURS) :
-      self.dejavu.append([-1]*JOUEURS)
-      self.dejavu[k][k] = 0  
+    for k in range(self.JOUEURS) :
+      self.dejavu.append([-1]*(self.JOUEURS))
+      self.dejavu[k][k] = 0
 
   def __repr__(self) : #json.loads(repr(listepersonne[0].dag)) pour l'objet json associé
       """On partage tout"""
@@ -67,13 +68,13 @@ class DAG() :
 
   def ajout(self, expediteur, destinataire, action, temps) : #expediteur et destinataire sont les id
     """temps est la date à laquelle on reçoit l'information"""
-    noeud = Noeud(destinataire, expediteur, action, temps)
+    noeud = Noeud(destinataire, expediteur, action, temps, self.JOUEURS)
     #Ajout dans la ligne du destinataire
     self.liste[destinataire].append(noeud)
     noeud.temps[destinataire] = temps #inutile
     self.dejavu[destinataire][destinataire] += 1
     #Mise à jour des derniers vu pour la ligne destinataire
-    for k in range(JOUEURS) :
+    for k in range(self.JOUEURS) :
       #Soit il apprends une nouvelle info, soit ça change rien
       # #Il faudrait affiner cette condition
       for i in range(len(self.liste[k])) :
@@ -85,18 +86,18 @@ class DAG() :
 
   def calculListeValide(self) :
     #Cette liste est définitive et les temps sont communs
-    res = [-1]*JOUEURS
-    for k in range(JOUEURS) :
-      res[k] = min([self.dejavu[i][k] for i in range(JOUEURS)])
+    res = [-1]*(self.JOUEURS)
+    for k in range(self.JOUEURS) :
+      res[k] = min([self.dejavu[i][k] for i in range(self.JOUEURS)])
     return res
 
   def graphique(self, avecTempsMoyen = False, tPropre = False) :
     """Affiche le dag dans une fenêtre pyplot. Les noeuds valides en bleus et les non valides en rouges"""
     listevalide = self.calculListeValide()
     print("Liste valide", listevalide)
-    derniers = [-1]*JOUEURS
-    premiers = [self.liste[i][0].temps[i] for i in range(JOUEURS)]
-    for k in range(JOUEURS) :
+    derniers = [-1]*(self.JOUEURS)
+    premiers = [self.liste[i][0].temps[i] for i in range(self.JOUEURS)]
+    for k in range(self.JOUEURS) :
       for i in range(len(self.liste[k])) :
         noeud = self.liste[k][i]
         if i <= listevalide[k] :
@@ -127,22 +128,22 @@ class DAG() :
           if noeud.parent1 != noeud.parent2 :
             plt.plot([derniers[noeud.parent1], derniers[noeud.parent1]], [noeud.parent2, noeud.parent1], color="k", alpha=0.3)
     #On trace les lignes de joueurs
-    for k in range(JOUEURS) :
+    for k in range(self.JOUEURS) :
       plt.plot([min(-1, min(premiers)), max(derniers)], [k, k], color="k", alpha=0.3) #TODO : virer ce -1 pour quand un joueur rentre dans le jeu en cours de route
     #Affichage
     plt.ylabel('Numéros des joueurs')
     plt.yticks(range(0, 3))
     plt.xlabel('Temps depuis le début du jeu (s)')
-    plt.title("Graphe global du système")
+    plt.title("Graphe du système")
     plt.show()
 
   def graphique_propre(self) :
     """Affiche le dag dans une fenêtre pyplot. Les noeuds valides en bleus et les non valides en rouges"""
     listevalide = self.calculListeValide()
     print("Liste valide", listevalide)
-    derniers = [-1]*JOUEURS
-    premiers = [self.liste[i][0].temps[i] for i in range(JOUEURS)]
-    for k in range(JOUEURS) :
+    derniers = [-1]*(self.JOUEURS)
+    premiers = [self.liste[i][0].temps[i] for i in range(self.JOUEURS)]
+    for k in range(self.JOUEURS) :
       for i in range(len(self.liste[k])) :
         noeud = self.liste[k][i]
         date = noeud.tempsPropre
@@ -150,7 +151,7 @@ class DAG() :
         if noeud.parent1 != noeud.parent2 :
           plt.plot([derniers[noeud.parent1], derniers[noeud.parent1]], [noeud.parent2, noeud.parent1], color="k", alpha=0.3)
     #On trace les lignes de joueurs
-    for k in range(JOUEURS) :
+    for k in range(self.JOUEURS) :
       plt.plot([-1, 10], [k, k], color="k", alpha=0.3)
     #Affichage
     plt.ylabel('Numéros des joueurs')
@@ -160,17 +161,34 @@ class DAG() :
     plt.show()
 
 class Personne() :
-  def __init__(self, idmoi) :
+  def __init__(self, idmoi, JOUEURS) :
+    self.JOUEURS = JOUEURS
     self.id = idmoi
-    self.dag = DAG() #DAG de ce qu'il passé dans la game pour lui
+    self.dag = DAG(self.JOUEURS) #DAG de ce qu'il passé dans la game pour lui
     self.actionTodo = [] #Celle qu'on va passer dans le prochain noeud
     self.temps = -1
   def partage(self) :
       return repr(self.dag)
+  def ajoutJoueur(self) :
+    #Incrémentation du nombre de joueurs
+    self.JOUEURS += 1
+    self.dag.JOUEURS += 1
+    #Mise à jour de la liste dejavu
+    for li in self.dag.dejavu :
+      li.append(-1) #Ce qu'à vu le nouveau joueur : rien
+    self.dag.dejavu.append([-1]*(self.JOUEURS))
+    #Ajout pour chaque noeud du nouveau joueur
+    for liste in self.dag.liste :
+      for noeud in liste :
+        noeud.temps.append(-1)
+    #Ajout d'une liste pour le dernier joueur dans le dag
+    self.dag.liste.append([])
+    originel = Noeud(self.JOUEURS-1, self.JOUEURS-1, [], -1, self.JOUEURS)
+    self.dag.liste[-1].append(originel)
   def sync_dag(self, json_obj) :
     """Mets à jour son graphe en fonction du graphe d'un autre"""
     liste = json_obj["liste"]
-    _liste = [0]*JOUEURS
+    _liste = [0]*(self.JOUEURS)
     temps_logique = -1 #On ajoute tous les noeuds d'un temps, et ainsi de suite
     nb_vu = 0
     while nb_vu < sum([len(i) for i in liste]) :

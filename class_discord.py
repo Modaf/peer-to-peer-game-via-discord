@@ -16,16 +16,16 @@ PROPORTION_GOSSIP = 0.3
 os.chdir("C:/Users/apzoeiruty/Desktop/peer_to_peer_game/")
 import fichier1test
 
-me, nb_joueurs = 0, 0
-try :
-    me = fichier1test.Personne(int(sys.argv[1]))
-    nb_joueurs = int(sys.argv[2])
-except :
-    me = fichier1test.Personne(1)
-    nb_joueurs = 2
-    
+
+me = fichier1test.Personne(0, 0)
+
+
+#Si la game a commencé
 global a_join
 a_join = False
+#Si on a été accepté par le chef du lobby
+global dejadedans
+dejadedans = False
 recherche = False #Regarde si on est en train de chercher une preuve de travail ou non
 global reputation
 reputaion = None #La reputation du chef du lobby
@@ -46,26 +46,32 @@ def random_dest(indice, nb_joueurs) :
 
 @client.event
 async def on_message(message):
+    print("Joueurs :", me.JOUEURS, "Identifiant :", me.id)
     global a_join
+    global dejadedans
     if not a_join :
         msg = json.loads(message.content)
         #Si c'est le premier message du chef
         if msg["id"] == "premier_message_chef" :
             reputation = msg["reputation"]
-            #On attends pour pas que ça soit le bordel
-            time.sleep(me.id * 10)
-            #On demande une preuve de travail
-            await client.send_message(channel, '//join '+str(me.id))
         #Si c'est le début du jeu
         if msg["id"] == "debut" :
             reputation = msg["reputation"]
             #On demarre le jeu
+            #Nombre de joueurs
+            while (me.JOUEURS < msg["joueurs"]) :
+                me.ajoutJoueur()
             a_join = True
         #Si c'est pour chercher une preuve de travail
-        if msg["id"] == "solve_pow" and msg["destinataire"] == me.id :
+        if msg["id"] == "solve_pow" and not dejadedans :
+            #Mise à jour de notre identifiant : on est le dernier joueur ajouté
+            while (me.JOUEURS < msg["joueurs"]) :
+                me.ajoutJoueur()
+            me.id = msg["joueurs"] #Pas -1 car en fait ça va rajouter plus tard un joueur à JOUEURS vu qu'on y sera
             s = str(msg["string"])
             difficulte = msg["difficulte"]
             #On attends pour pas que tous les joueurs join en même temps
+            #Voir si on fait cette partie en Go
             while True :
                 _r = random.random()
                 if hashit(s + str(_r)) < difficulte :
@@ -73,6 +79,8 @@ async def on_message(message):
                     #On renvoit le json qui permets de nous intégrer au jeu
                     await client.send_message(channel, '{"id" : "solve", "cle" : '+ s + ', "nonce" : '+ str(_r) + '}')
                     #On s'arrête la
+                    dejadedans = True
+                    a_join = True
                     break
     if a_join :
         msg = json.loads(message.content)
@@ -82,9 +90,9 @@ async def on_message(message):
             me.temps = int(msg["counter"])
             #On regarde l'action qu'on doit effectuer
             #Si on doit partager notre graphe
-            if msg["action"] == "gossip" and msg["counter"]%nb_joueurs == me.id :  #TODO : random.random() < PROPORTION_GOSSIP :
+            if msg["action"] == "gossip" and msg["counter"]%me.JOUEURS == me.id :  #TODO : random.random() < PROPORTION_GOSSIP :
                 print("Partage de notre dag")
-                message = '{"id" : "dag", "expediteur" : '+str(me.id)+',"destinataire" : '+str(random_dest(me.id, nb_joueurs))+', "dag" : '+me.partage()+', "temps" : '+str(me.temps)+'}' #TODO : prendre un nombre au hasard pour jouer avec plus de joueurs
+                message = '{"id" : "dag", "expediteur" : '+str(me.id)+',"destinataire" : '+str(random_dest(me.id, me.JOUEURS))+', "dag" : '+me.partage()+', "temps" : '+str(me.temps)+'}' #TODO : prendre un nombre au hasard pour jouer avec plus de joueurs
                 await client.send_message(channel, message)
             #Si on doit afficher notre dag
             if msg["action"] == "graphe" : #TODO : les graphes marchent pas
@@ -105,12 +113,20 @@ async def on_message(message):
             print("")
             #Affichae du dag
             #me.dag.graphique_propre()
+        #On regarde si un joueur s'est ajouté au jeu
+        if msg["id"] == "ajout_joueur" :
+            print("Ajout d'un joueur")
+            me.ajoutJoueur()
+            #On vérifie qu'on est au bon nombre de joueurs
+            if me.JOUEURS != msg["joueurs"] :
+                print("Mauvais nombre de joueurs")
 @client.event
 async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
+    await client.send_message(channel, "//join")
 
 
 client.run(TOKEN)

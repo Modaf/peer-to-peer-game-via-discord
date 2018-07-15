@@ -5,15 +5,13 @@ Pour résoudre cette preuve et être accepté : json : id = solve, cle = le_truc
 """
 print("Chef du lobby, celui qui permets d'ajouter des joueurs")
 
-#Petite pause pour laisser aux joueurs le temps de join
-import time
-time.sleep(25)
 
 import discord
 import random
 import hashlib
 import json
 import sys
+import time
 TOKEN = 'NDU4Mjg2Mjk2MTAwNTAzNTUz.DglckA.Kmgp9Jxk5nhotxcDLu9ytZoTR-M'
 IDSALON = 458770508616564741
 
@@ -24,9 +22,11 @@ channel = discord.Object(id=IDSALON)
 
 JOUEURS = 0
 MAX_JOUEURS = int(sys.argv[1])
-difficulte = 2**(256)/(10**6)
+difficulte = 2**(256)/(10**5)
 liste_entrants = []
 reputation = random.random()
+
+print("On attends", MAX_JOUEURS, "joueurs")
 
 def hashit(s) :
     return int(hashlib.sha256(s.encode()).hexdigest(), 16)
@@ -39,7 +39,7 @@ async def on_message(message):
     if msg[:6] == "//join" :
         _random = random.random()
         nouvelle_reputation = random.random()
-        _message = '{"id" : "solve_pow", "destinataire" : '+msg[7:]+', "string" : '+str(_random)+', "difficulte" : '+str(difficulte)+', "reputation_avant" : '+str(reputation)+', "reputation" : '+str(hashit(str(nouvelle_reputation))) + '}'
+        _message = '{"id" : "solve_pow", "joueurs" : '+str(JOUEURS)+', "string" : '+str(_random)+', "difficulte" : '+str(difficulte)+', "reputation_avant" : '+str(reputation)+', "reputation" : '+str(hashit(str(nouvelle_reputation))) + '}'
         await client.send_message(channel, _message)
         reputation = nouvelle_reputation
         liste_entrants.append(_random)
@@ -56,6 +56,9 @@ async def on_message(message):
                 #On ajoute un joueur
                 JOUEURS += 1
                 nouvelle_reputation = random.random()
+                
+                #Pause pour laisser au joueur le temps
+                time.sleep(1)
                 _message = '{"id" : "ajout_joueur", "joueurs" : '+str(JOUEURS)+', "reputation_avant" : '+str(reputation)+', "reputation" : '+str(hashit(str(nouvelle_reputation))) + '}'
                 await client.send_message(channel, _message)
                 reputation = nouvelle_reputation
