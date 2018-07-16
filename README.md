@@ -97,5 +97,5 @@ Et les partages de graphe, à partir d'ici la partie est lancée. Reste à la re
 
 Il faut lancer chef.bat puis horloge.bat, ensuite au moins deux joueurs pour que le jeu commence et enfin autant de joueurs que vous voulez
 Voici ce qu'on obtient comme graphe typique (une requête a manqué d'ailleurs) quand un troisième joueur se rajoute en plein milieu de la partie
-<img src="https://www.noelshack.com/2018-29-1-1531734253-figurejh-1.png" alt="Graphe du jeu"/>
+![Graphe du jeu](https://image.noelshack.com/fichiers/2018/29/1/1531734253-figurejh-1.png)
 Reste plus qu'à eventuellement modifier la notion de noeuds validé voir ce qu'on affiche exactement (et à taper la preuve de travail en Go, c'est quasi fini)
