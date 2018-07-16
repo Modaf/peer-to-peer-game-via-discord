@@ -1,1 +1,1 @@
-start py "C:/Users/apzoeiruty/Desktop/peer_to_peer_game/chef_du_lobby.py" 3
+start py "C:/Users/apzoeiruty/Desktop/peer_to_peer_game/chef_du_lobby.py" 2

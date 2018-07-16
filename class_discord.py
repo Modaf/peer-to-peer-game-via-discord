@@ -96,9 +96,7 @@ async def on_message(message):
                 await client.send_message(channel, message)
             #Si on doit afficher notre dag
             if msg["action"] == "graphe" : #TODO : les graphes marchent pas
-                me.dag.graphique(True, True)
-                me.dag.graphique(True, False)
-                me.dag.graphique(False)
+                me.graphique()
         #On regade si un autre joueur veut communiquer avec nous
         if msg["id"] == "dag" and  msg["destinataire"] == me.id :
             print("Mise à jour de notre dag")

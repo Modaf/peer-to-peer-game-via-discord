@@ -91,7 +91,7 @@ class DAG() :
       res[k] = min([self.dejavu[i][k] for i in range(self.JOUEURS)])
     return res
 
-  def graphique(self, avecTempsMoyen = False, tPropre = False) :
+  def graphique(self, avecTempsMoyen = False, tPropre = False, id=0) :
     """Affiche le dag dans une fenêtre pyplot. Les noeuds valides en bleus et les non valides en rouges"""
     listevalide = self.calculListeValide()
     print("Liste valide", listevalide)
@@ -134,7 +134,7 @@ class DAG() :
     plt.ylabel('Numéros des joueurs')
     plt.yticks(range(0, 3))
     plt.xlabel('Temps depuis le début du jeu (s)')
-    plt.title("Graphe du système")
+    plt.title("Graphe du joueur " + str(id))
     plt.show()
 
   def graphique_propre(self) :
@@ -167,6 +167,10 @@ class Personne() :
     self.dag = DAG(self.JOUEURS) #DAG de ce qu'il passé dans la game pour lui
     self.actionTodo = [] #Celle qu'on va passer dans le prochain noeud
     self.temps = -1
+  def graphique(self) :
+    self.dag.graphique(True, True, self.id)
+    #self.dag.graphique(True, False, self.id)
+    #self.dag.graphique(False, self.id)
   def partage(self) :
       return repr(self.dag)
   def ajoutJoueur(self) :
@@ -177,6 +181,7 @@ class Personne() :
     for li in self.dag.dejavu :
       li.append(-1) #Ce qu'à vu le nouveau joueur : rien
     self.dag.dejavu.append([-1]*(self.JOUEURS))
+    self.dag.dejavu[-1][-1] = 0
     #Ajout pour chaque noeud du nouveau joueur
     for liste in self.dag.liste :
       for noeud in liste :
