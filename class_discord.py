@@ -9,6 +9,8 @@ import json
 import random
 import time
 import hashlib
+import urllib3
+http = urllib3.PoolManager()
 TOKEN = 'NDU4Mjg2Mjk2MTAwNTAzNTUz.DglckA.Kmgp9Jxk5nhotxcDLu9ytZoTR-M'
 IDSALON = 458770508616564741
 PROPORTION_GOSSIP = 0.3
@@ -83,6 +85,19 @@ async def on_message(message):
                     a_join = True
                     break
     if a_join :
+        if message.attachments != [] :
+            if message.attachments[0]["filename"] == str(me.id) :
+                msg_ici = json.loads(http.request("GET", message.attachments[0]["url"]).data)
+                print("Mise à jour de notre dag")
+                print(me.partage())
+                me.sync_dag(msg_ici["dag"])
+                #On ajoute un noeuds à notre graphe, on est destinataire
+                me.dag.ajout(msg_ici["expediteur"], me.id, [], msg_ici["temps"])
+                print("Mise à jour effectuée")
+                print(me.partage())
+                print("")
+                print("------")
+                print("")
         msg = json.loads(message.content)
         #On regarde si c'est l'horloge
         if msg["id"] == "clock" :
@@ -92,25 +107,16 @@ async def on_message(message):
             #Si on doit partager notre graphe
             if msg["action"] == "gossip" and msg["counter"]%me.JOUEURS == me.id :  #TODO : random.random() < PROPORTION_GOSSIP :
                 print("Partage de notre dag")
-                message = '{"id" : "dag", "expediteur" : '+str(me.id)+',"destinataire" : '+str(random_dest(me.id, me.JOUEURS))+', "dag" : '+me.partage()+', "temps" : '+str(me.temps)+'}' #TODO : prendre un nombre au hasard pour jouer avec plus de joueurs
-                await client.send_message(channel, message)
+                dest = str(random_dest(me.id, me.JOUEURS))
+                message = '{"id" : "dag", "expediteur" : '+str(me.id)+',"destinataire" : '+dest+', "dag" : '+me.partage()+', "temps" : '+str(me.temps)+'}' #TODO : prendre un nombre au hasard pour jouer avec plus de joueurs
+                nom = dest
+                f = open(nom,  "w")
+                f.write(message)
+                f.close()
+                await client.send_file(channel, nom)
             #Si on doit afficher notre dag
             if msg["action"] == "graphe" : #TODO : les graphes marchent pas
                 me.graphique()
-        #On regade si un autre joueur veut communiquer avec nous
-        if msg["id"] == "dag" and  msg["destinataire"] == me.id :
-            print("Mise à jour de notre dag")
-            print(me.partage())
-            me.sync_dag(msg["dag"])
-            #On ajoute un noeuds à notre graphe, on est destinataire
-            me.dag.ajout(msg["expediteur"], me.id, [], msg["temps"])
-            print("Mise à jour effectuée")
-            print(me.partage())
-            print("")
-            print("------")
-            print("")
-            #Affichae du dag
-            #me.dag.graphique_propre()
         #On regarde si un joueur s'est ajouté au jeu
         if msg["id"] == "ajout_joueur" :
             print("Ajout d'un joueur")
@@ -118,6 +124,7 @@ async def on_message(message):
             #On vérifie qu'on est au bon nombre de joueurs
             if me.JOUEURS != msg["joueurs"] :
                 print("Mauvais nombre de joueurs")
+        #On regade si un autre joueur veut communiquer avec nous
 @client.event
 async def on_ready():
     print('Logged in as')
